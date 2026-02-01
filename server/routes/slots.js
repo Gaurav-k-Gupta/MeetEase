@@ -57,6 +57,13 @@ router.delete('/:id', verifyToken, async (req, res) => {
         }
 
         await slot.deleteOne();
+
+        // Emit event for real-time update
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('slot-update', { slotId: req.params.id, action: 'deleted' });
+        }
+
         res.json({ message: 'Slot deleted' });
     } catch (err) {
         res.status(500).json({ message: 'Server error' });

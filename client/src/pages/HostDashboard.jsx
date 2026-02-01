@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import API from '../api';
 import { useNavigate } from 'react-router-dom';
 
+import { io } from 'socket.io-client';
+
 const HostDashboard = () => {
     const [slots, setSlots] = useState([]);
     const [newSlot, setNewSlot] = useState({ date: '', time: '' });
@@ -11,6 +13,21 @@ const HostDashboard = () => {
 
     useEffect(() => {
         fetchSlots();
+
+        // Socket.io for Real-Time Updates
+        const socket = io('http://localhost:5000');
+
+        socket.on('slot-update', ({ slotId, action }) => {
+            if (action === 'booked') {
+                setSlots((prev) => prev.map(slot =>
+                    slot._id === slotId ? { ...slot, isBooked: true } : slot
+                ));
+            } else if (action === 'deleted') {
+                setSlots((prev) => prev.filter(slot => slot._id !== slotId));
+            }
+        });
+
+        return () => socket.disconnect();
     }, []);
 
     const fetchSlots = async () => {
@@ -118,8 +135,8 @@ const HostDashboard = () => {
                                 <div
                                     key={slot._id}
                                     className={`relative p-5 rounded-xl border transition-all ${slot.isBooked
-                                            ? 'bg-green-900/20 border-green-500/30'
-                                            : 'bg-white/5 border-white/10 hover:border-blue-500/50'
+                                        ? 'bg-green-900/20 border-green-500/30'
+                                        : 'bg-white/5 border-white/10 hover:border-blue-500/50'
                                         }`}
                                 >
                                     <div className="flex justify-between items-start">

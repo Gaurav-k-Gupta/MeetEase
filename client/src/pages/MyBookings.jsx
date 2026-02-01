@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 const MyBookings = () => {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('upcoming');
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user'));
 
@@ -29,10 +30,22 @@ const MyBookings = () => {
         navigate('/login');
     };
 
+    // Helper to check if a booking is in the past
+    const isPast = (dateStr, timeStr) => {
+        const bookingDate = new Date(`${dateStr}T${timeStr}`);
+        const now = new Date();
+        return bookingDate < now;
+    };
+
+    const upcomingBookings = bookings.filter(b => !isPast(b.slotId?.date, b.slotId?.time));
+    const pastBookings = bookings.filter(b => isPast(b.slotId?.date, b.slotId?.time));
+
+    const displayedBookings = activeTab === 'upcoming' ? upcomingBookings : pastBookings;
+
     return (
         <div className="min-h-screen bg-black text-gray-100 p-8">
             {/* Header */}
-            <div className="flex justify-between items-center mb-12">
+            <div className="flex justify-between items-center mb-8">
                 <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">
                     My Bookings
                 </h1>
@@ -50,25 +63,65 @@ const MyBookings = () => {
                 </div>
             </div>
 
+            {/* Tabs */}
+            <div className="flex gap-4 mb-8 border-b border-gray-800 pb-1">
+                <button
+                    onClick={() => setActiveTab('upcoming')}
+                    className={`pb-2 px-4 font-medium transition-colors relative ${activeTab === 'upcoming'
+                            ? 'text-green-400'
+                            : 'text-gray-500 hover:text-gray-300'
+                        }`}
+                >
+                    Upcoming
+                    {activeTab === 'upcoming' && (
+                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 rounded-full"></span>
+                    )}
+                </button>
+                <button
+                    onClick={() => setActiveTab('history')}
+                    className={`pb-2 px-4 font-medium transition-colors relative ${activeTab === 'history'
+                            ? 'text-green-400'
+                            : 'text-gray-500 hover:text-gray-300'
+                        }`}
+                >
+                    History
+                    {activeTab === 'history' && (
+                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 rounded-full"></span>
+                    )}
+                </button>
+            </div>
+
             {loading ? (
                 <p className="text-gray-500">Loading bookings...</p>
-            ) : bookings.length === 0 ? (
+            ) : displayedBookings.length === 0 ? (
                 <div className="text-center py-20 bg-white/5 rounded-2xl border border-dashed border-white/10">
-                    <p className="text-gray-500 text-xl">You haven't made any bookings yet.</p>
-                    <Link to="/browse-slots" className="mt-4 inline-block px-6 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-500 transition-colors">
-                        Find a Slot
-                    </Link>
+                    <p className="text-gray-500 text-xl">
+                        {activeTab === 'upcoming'
+                            ? "You have no upcoming bookings."
+                            : "No booking history found."}
+                    </p>
+                    {activeTab === 'upcoming' && (
+                        <Link to="/browse-slots" className="mt-4 inline-block px-6 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-500 transition-colors">
+                            Find a Slot
+                        </Link>
+                    )}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {bookings.map((booking) => (
+                    {displayedBookings.map((booking) => (
                         <div
                             key={booking._id}
-                            className="bg-white/5 backdrop-blur-sm border border-white/10 p-6 rounded-2xl hover:border-green-500/30 transition-all"
+                            className={`backdrop-blur-sm border p-6 rounded-2xl transition-all ${activeTab === 'upcoming'
+                                    ? 'bg-white/5 border-white/10 hover:border-green-500/30'
+                                    : 'bg-white/5 border-white/5 opacity-75 grayscale hover:grayscale-0 hover:opacity-100'
+                                }`}
                         >
                             <div className="flex justify-between items-start mb-4">
-                                <span className="bg-green-500/20 text-green-300 text-xs px-2 py-1 rounded uppercase tracking-wide font-bold">
-                                    Confirmed
+                                <span className={`text-xs px-2 py-1 rounded uppercase tracking-wide font-bold ${activeTab === 'upcoming'
+                                        ? 'bg-green-500/20 text-green-300'
+                                        : 'bg-gray-700 text-gray-400'
+                                    }`}>
+                                    {activeTab === 'upcoming' ? 'Confirmed' : 'Completed'}
                                 </span>
                                 <span className="text-gray-400 text-xs">ID: {booking._id.slice(-6)}</span>
                             </div>

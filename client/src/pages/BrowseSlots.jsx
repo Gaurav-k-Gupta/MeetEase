@@ -19,7 +19,7 @@ const BrowseSlots = () => {
         const socket = io('http://localhost:5000');
 
         socket.on('slot-update', ({ slotId, action }) => {
-            if (action === 'booked') {
+            if (action === 'booked' || action === 'deleted') {
                 setSlots((prev) => prev.filter(s => s._id !== slotId));
             }
         });
