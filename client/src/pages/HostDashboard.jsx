@@ -15,7 +15,7 @@ const HostDashboard = () => {
         fetchSlots();
 
         // Socket.io for Real-Time Updates
-        const socket = io('http://localhost:5000');
+        const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
 
         socket.on('slot-update', ({ slotId, action }) => {
             if (action === 'booked') {

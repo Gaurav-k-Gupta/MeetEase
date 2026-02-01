@@ -9,13 +9,15 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // Allow all for now, restrict in production
+        origin: process.env.CLIENT_URL || "*", // Allow env var or all
         methods: ["GET", "POST"]
     }
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.CLIENT_URL || "*"
+}));
 app.use(express.json());
 
 // Database connection
