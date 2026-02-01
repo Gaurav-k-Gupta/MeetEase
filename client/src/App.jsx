@@ -13,11 +13,13 @@ const ProtectedRoute = ({ children, allowedRole }) => {
 import BrowseSlots from './pages/BrowseSlots';
 import MyBookings from './pages/MyBookings';
 
+import Home from './pages/Home';
+
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/register" />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 

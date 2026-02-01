@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import BookingModal from '../components/BookingModal';
 import { io } from 'socket.io-client';
 
@@ -62,6 +62,9 @@ const BrowseSlots = () => {
                     Find a Slot
                 </h1>
                 <div className="flex items-center gap-4">
+                    <Link to="/my-bookings" className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors">
+                        My Bookings
+                    </Link>
                     <span className="text-gray-400">Visitor: {user?.name}</span>
                     <button
                         onClick={handleLogout}
